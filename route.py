@@ -1,109 +1,68 @@
 # -*- coding: utf-8 -*-
-from collections import namedtuple
-from errors import MethodNotAllowed, NotFound
 import re
+from collections import namedtuple
+
+from errors import MethodNotAllowed, NotFound
+
+route = namedtuple("route", ["endpoint", "methods"])
 
 
-class route:
-    def __init__(self, handler, methods, parameters):
-        self.handler = handler
-        self.methods = methods
-        self.parameters = parameters
-
-
-parameter = namedtuple("Parameter", ["name", "ty"])
 
 
 class Route:
+    """
+    采用类似djngo的正则路由匹配
+    """
     def __init__(self):
-
         self.routes = {}
-        self.hosts = []
+        self.endtoview = {}
 
-    def add(self, url, handler, methods=["GET"], host=None):
+    def add(self, urlregex, handler, handlername=None, methods=["GET"]):
         '''
-        :param url: 匹配路径
+        :param urlregex: 匹配路径
         :param handler: 拦截函数
-        :param methods: 方法列表
-        :param host: 主机
+        :param handlername: 拦截函数名
+        :param methods: 支持的方法
         '''
-        if host:
-            self.hosts.append(host)
-            absurl = host + url
-        else:
-            absurl = url
-        if not absurl.startswith("/"):
-            absurl += "/"
-        if absurl in self.routes:
-            pass
-        parapattern = re.compile(r"(.*?)<(.*)>")
-        r = re.match(parapattern, absurl)
-        if r:
-            parameterstr = r.group(2)
-            if ":" in parameterstr:
-                # 有类型下为("name","str")
-                _name, _type = parameterstr.split(":")
-            else:
-                # 无类型下为("name","")
-                _name, _type = parameterstr, ""
-            absurl = r.group(1) + "<{}>".format(_type)
-        else:
-            parameterstr = ""
-            # 无参数下为("","")
-            _name, _type = parameterstr, ""
-        _parameter = parameter(_name, _type)
-        _route = route(handler, methods, _parameter)
-        self.routes[absurl] = _route
+        if not urlregex.startswith(r"^/"):
+            urlregex = r"^/" + urlregex[1:]
+        if not handlername:
+            handlername = handler.__name__
+        self.routes[urlregex] = route(handlername, methods)
+        self.endtoview[handlername] = handler
 
-    def _get(self, url, method, host):
-        absurl = url + host
-        if not absurl.startswith("/"):
-            absurl += "/"
-        pattern = re.compile(r"(.*/)(.+?)$")
-        match = re.match(pattern, absurl)
-        if match:
-            firstpart = match.group(1)
-            # 最后一个"/"后的字符串
-            lastpart = match.group(2)
-        arg = []
-        # 优先匹配静态
-        currentroute = self.routes.get(absurl, None)
-        if currentroute:
-            return currentroute.handler, arg
-        # 对所有动态url以类型代替关键字
-        if match:
-            if re.match(r"[A-Za-z]+", lastpart):
-                parapart = "<string>"
-                # print(parapart)
-                arg = lastpart
-            elif re.match(r"\d+", lastpart):
-                parapart = "<int>"
-                arg = int(lastpart)
-            elif re.match(r"[0-9\\.]+", lastpart):
-                parapart = "<float>"
-                arg = float(lastpart)
-            else:
-                parapart = None
-            if not currentroute and parapart:
-                currentroute = self.routes.get(firstpart + parapart, None)
-        if not currentroute:
-            raise NotFound
-        if method not in currentroute.methods:
-            raise MethodNotAllowed
-        return currentroute.handler, arg
+    def get(self, url, method):
+        if not url.startswith("/"):
+            url += "/"
+        for regex in self.routes:
+            matchgroup = re.match(regex, url)
+            if matchgroup:
+                route = self.routes[regex]
+                handlername = route.endpoint
+                methods = route.methods
+                if method in methods:
+                    kwargs = matchgroup.groupdict()
+                    # urlregex中匿名捕获和非匿名捕获的顺序,必须按照先位置参数,后关键词参数的顺序排列
+                    args = matchgroup.groups()[:-len(kwargs)] if kwargs else matchgroup.groups()
+                    handler = self.endtoview[handlername]
+                    return handler, args, kwargs
+                raise MethodNotAllowed
+        raise NotFound
 
-    def get(self, request):
-        if not self.hosts:
-            return self._get(request.url, request.method, '')
-        else:
-            return self._get(request.url, request.method,
-                             request.headers.get("Host", ''))
-
-# def printadb():
-#     print("abc")
 #
+# def printadc():
+#     print("abc")
+# def printanything(thing):
+#     print(thing)
+# def printspecialthing(thing):
+#     print(thing)
 # myroute=Route()
-# myroute.add("/hello",printadb)
-# myroute.get("/hello","GET","")()
-# myroute.add("/helloworld/<name:string>",printadb)
-# myroute.get("/helloworld/zgy","GET","")()
+# myroute.add(r"^/hello$",printadc)
+# handler,args,kwargs=myroute.get("/hello","GET")
+# handler(*args,*kwargs)
+# myroute.add(r"^/hello/(.+?)$",printanything)
+# handler,args,kwargs=myroute.get("/hello/adad","GET")
+# handler(*args,*kwargs)
+# myroute.add(r"^/helloworld/(?P<thing>.+?)$",printspecialthing)
+# handler,args,kwargs=myroute.get("/helloworld/somethingspecial","GET")
+# handler(*args,*kwargs)
