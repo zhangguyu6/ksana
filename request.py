@@ -1,5 +1,9 @@
 #-*- coding: utf-8 -*-
 from httptools import parse_url
+
+from cookies import cookiesparser
+
+
 class Request:
     def __init__(self,url,headers,method,version,keep_alive=None):
         self.rawurl=parse_url(url)
@@ -8,6 +12,10 @@ class Request:
         self.method=method.decode("utf-8")
         self.version=version
         self.keep_alive=keep_alive
+        self.session = None
+        self.usersession = None
+        if self.headers.get("Cookie"):
+            self.cookiedict = cookiesparser(self.headers.get("Cookie"))
 
     def setbody(self,body):
         self.body=body.decode("utf-8")

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from httptools import HttpRequestParser,HttpParserError
-from request import Request
 import asyncio
-from signal import SIGINT, SIGTERM
 from pprint import pprint
+from signal import SIGINT, SIGTERM
+
+from httptools import HttpRequestParser
+
+from request import Request
 
 
 class BaseServer(asyncio.Protocol):
@@ -88,8 +90,7 @@ class BaseServer(asyncio.Protocol):
     # 返回响应
     def write(self, response):
         print("start write")
-        print(response)
-        self.transport.write(response)
+        self.transport.write(response.make_response())
         print("end write")
         keep_alive = self.keep_alive and not self.toggle[0]
         if not keep_alive:

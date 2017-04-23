@@ -31,7 +31,10 @@ class Route:
         self.routes[urlregex] = route(handlername, methods)
         self.endtoview[handlername] = handler
 
-    def get(self, url, method):
+    def get(self, request):
+        return self._get(request.url, request.method)
+
+    def _get(self, url, method):
         if not url.startswith("/"):
             url += "/"
         for regex in self.routes:

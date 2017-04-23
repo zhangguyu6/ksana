@@ -5,13 +5,13 @@ class KsanaError(Exception):
 
 
 class NotFound(KsanaError):
-    status=b"404"
+    status = 404
 
 class MethodNotAllowed(KsanaError):
-    status=b"405"
+    status = 405
 
 class ServerError(KsanaError):
-    status=b"500"
+    status = 500
 
 class ErrorHandler:
     def __init__(self):
@@ -28,6 +28,4 @@ class ErrorHandler:
 
     def defaulthandler(self,request,exception):
         if issubclass(type(exception),KsanaError):
-            return Response(body=None,headers={},status=exception.status).make_response()
-e=ErrorHandler()
-print(e.response("",NotFound()))
+            return Response(status=exception.status)
