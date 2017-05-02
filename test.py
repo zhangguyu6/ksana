@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import session
+from blueprint import Blueprint
 from ksana import Ksana
 from response import Response
 
@@ -36,14 +37,18 @@ def nothello(request):
                         "</html>", {}, content_type="text/html; charset=utf-8")
     value = request.cookiedict.get("simplecookie")
     if value:
-        response.set_cookie("simplecookie", value)
         response.delete_cookie("simplecookie")
     print("end")
     return response
 
 
+myblueprint = Blueprint(myfirstapp)
+myblueprint.add(r"^/nothello$", nothello)
+
+myblueprint.register()
 myfirstapp.route.add(r"^/helloworld$", hello)
-myfirstapp.route.add(r"^/nothello$", nothello)
+# myfirstapp.route.add(r"^/nothello$", nothello)
 myfirstapp.beforeresponse.append(session.SessionInterface.open)
 myfirstapp.afterresponse.append(session.SessionInterface.save)
+
 myfirstapp.run(("localhost", 8889))
