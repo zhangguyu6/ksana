@@ -14,6 +14,7 @@ class Request:
         self.keep_alive=keep_alive
         self.session = None
         self.usersession = None
+        self.cookiedict = {}
         if self.headers.get("Cookie"):
             self.cookiedict = cookiesparser(self.headers.get("Cookie"))
 

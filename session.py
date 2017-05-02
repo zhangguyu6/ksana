@@ -17,11 +17,10 @@ class SessionInterface:
     def open(self, request):
         print("open start")
         cookiesdict = request.cookiedict
-        uid = cookiesdict.get("uid")
-        print("open", uid)
+        if cookiesdict:
+            uid = cookiesdict.get("uid")
         print("open", SessionDict)
-        print(SessionDict.get(uid))
-        if not uid or not SessionDict.get(uid):
+        if not cookiesdict or not uid or not SessionDict.get(uid):
             uid = uuid.uuid4().hex
             usersession = SessionDict[uid] = Usersession(uid)
             usersession.modified = True
