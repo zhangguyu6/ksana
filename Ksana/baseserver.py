@@ -5,7 +5,7 @@ from signal import SIGINT, SIGTERM
 
 from httptools import HttpRequestParser
 
-from request import Request
+from Ksana.request import Request
 
 
 class BaseServer(asyncio.Protocol):
@@ -19,6 +19,7 @@ class BaseServer(asyncio.Protocol):
         self.timehandle = None
         self.requesthandletask = None
         # 默认请求参数
+        self.ip = None
         self.parse = None
         self.url = None
         self.headers = {}
@@ -37,6 +38,7 @@ class BaseServer(asyncio.Protocol):
         print("connect start")
         self.connections.add(self)
         self.transport = transport
+        self.ip = transport.get_extra_info("peername")
         # self.timehandle = self.loop.call_later(self.request_timeout, self.teardown)
 
     def connection_lost(self, exc):
@@ -65,6 +67,7 @@ class BaseServer(asyncio.Protocol):
         except HttpRequestParser as e:
             pass
 
+
     def on_url(self, url):
         self.url = url
 
@@ -75,7 +78,8 @@ class BaseServer(asyncio.Protocol):
         self.method = self.parse.get_method()
         self.httpversion = self.parse.get_http_version()
         self.keep_alive = self.parse.should_keep_alive()
-        self.request = Request(self.url, self.headers, self.method, self.httpversion,self.request_timeout if self.keep_alive else None)
+        self.request = Request(self.ip, self.url, self.headers, self.method, self.httpversion,
+                               self.request_timeout if self.keep_alive else None)
 
     def on_body(self, body):
         # print(body)

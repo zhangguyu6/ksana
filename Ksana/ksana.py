@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import asyncio
+import traceback
 from inspect import getmodulename, currentframe, getframeinfo
 from inspect import isawaitable
 from signal import signal,SIGTERM, SIGINT
 
-from baseserver import start_server
-from errors import ErrorHandler, KsanaError
-from route import Route
+from Ksana.errors import ErrorHandler, KsanaError
+from .baseserver import start_server
+from .route import Route
 
 
 class Ksana:
@@ -34,7 +35,7 @@ class Ksana:
                 #暂时只实现了404,405,500,没有定义异常视图的情况下,默认500
                 response = self.error_handle.response(request, e)
             except Exception:
-                pass
+                traceback.print_exc()
         write(response)
 
     def run(self,address,

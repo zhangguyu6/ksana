@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from response import Response
+from Ksana.response import Response
 class KsanaError(Exception):
     pass
 

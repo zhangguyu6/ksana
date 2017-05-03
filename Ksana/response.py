@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
 
-from cookies import CookieJar
+from Ksana.cookies import CookieJar
 
 STATUSDICT = {
     100: "Continue",
@@ -68,15 +69,10 @@ class Response:
         self.cookies[key]["max-age"] = "0"
         print("end")
 
-# a=Response("<!DOCTYPE html>"
-#                     "<html>"
-#                     "<head>"
-#                     "<title>这是标题</title>"
-#                     "</head>"
-#                     "<body>"
-#                     "<p>Hello world!</p>"
-#                     "</body>"
-#                     "</html>",{},content_type="text/html; charset=utf-8")
-# a.set_cookie("adad","afaf")
-# print(a.cookies)
-# pprint(a.make_response())
+
+class Responsejson(Response):
+    def __init__(self, body=None, headers=None, version=None, status=None, content_type=None, keep_live=None):
+        body = json.dumps(body)
+        content_type = "application/json"
+        super().__init__(body=body, headers=headers, version=version, status=status, content_type=content_type,
+                         keep_live=keep_live)

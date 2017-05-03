@@ -2,7 +2,7 @@
 import re
 from collections import namedtuple
 
-from errors import MethodNotAllowed, NotFound
+from Ksana.errors import MethodNotAllowed, NotFound
 
 route = namedtuple("route", ["endpoint", "methods"])
 

@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import session
-from blueprint import Blueprint
-from ksana import Ksana
-from response import Response
+from Ksana import session, Ksana, Response
+
+from Ksana.blueprint import Blueprint
 
 myfirstapp=Ksana()
 
