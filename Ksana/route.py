@@ -52,7 +52,6 @@ class Route:
                 raise MethodNotAllowed
         raise NotFound
 
-#
 # def printadc():
 #     print("abc")
 # def printanything(thing):

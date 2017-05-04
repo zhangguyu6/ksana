@@ -29,13 +29,16 @@ class Ksana:
             for after in self.afterresponse:
                 after(request, response)
             if isawaitable(response):
+                print("isawaitable")
                 response = await response
+                print("adada")
         except KsanaError as e:
-            try:
                 #暂时只实现了404,405,500,没有定义异常视图的情况下,默认500
                 response = self.error_handle.response(request, e)
-            except Exception:
-                traceback.print_exc()
+        except Exception as e:
+            print(repr(e))
+            traceback.print_exc()
+
         write(response)
 
     def run(self,address,
