@@ -1,5 +1,6 @@
 ## Ksana
 ___
+![https://pypi.python.org/pypi/ksana/0.0.2.2](https://img.shields.io/badge/pypi-v0.0.2.2-blue.svg)
 Ksana是一个基于asyncio的轻量级异步web框架
 ### quick start
 ```python
